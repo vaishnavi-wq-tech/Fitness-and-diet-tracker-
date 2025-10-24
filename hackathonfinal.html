@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NutriMate - Fitness & Diet Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4, #a1c4fd);
+      color: #333;
+      min-height: 100vh;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    header h1 {
+      font-size: 2rem;
+      margin: 0;
+      color: #333;
+    }
+    header img {
+      height: 50px;
+      cursor: pointer;
+    }
+    nav button {
+      margin-left: 10px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      background: #4facfe;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    nav button:hover {
+      background: #00f2fe;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+    }
+    .card {
+      background: rgba(255,255,255,0.9);
+      border-radius: 12px;
+      padding: 20px;
+      width: 350px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .card h2 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #333;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    button {
+      background: #4facfe;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #00f2fe;
+    }
+    ul {
+      text-align: left;
+      padding-left: 20px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+    .summary {
+      max-width: 1000px;
+      margin: 20px auto;
+      background: rgba(255,255,255,0.9);
+      padding: 20px;
+      border-radius: 12px;
+      text-align: left;
+    }
+    .summary h2 {
+      text-align: center;
+      color: #333;
+    }
+    canvas {
+      background: rgba(255,255,255,0.95);
+      border-radius: 12px;
+      margin-top: 10px;
+      padding: 10px;
+    }
+    .goals, .tips {
+      margin-top: 20px;
+      background: rgba(255,255,255,0.85);
+      padding: 15px;
+      border-radius: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🥗 NutriMate</h1>
+    <nav>
+      <img src="https://cdn-icons-png.flaticon.com/512/1005/1005973.png" alt="Logo">
+      <button onclick="login()">Login</button>
+      <button onclick="signup()">Sign Up</button>
+    </nav>
+  </header>
+
+  <div class="container">
+    <!-- ADD MEAL -->
+    <div class="card">
+      <h2>🍽 Daily Diet Log</h2>
+      <input type="text" id="mealName" placeholder="Food Item">
+      <input type="number" id="mealCalories" placeholder="Calories">
+      <select id="mealType">
+        <option value="">Select Meal Type</option>
+        <option value="Breakfast">Breakfast</option>
+        <option value="Lunch">Lunch</option>
+        <option value="Dinner">Dinner</option>
+        <option value="Snack">Snack</option>
+      </select>
+      <input type="date" id="mealDate">
+      <button onclick="addMeal()">Add Meal</button>
+      <ul id="mealList"></ul>
+    </div>
+
+    <!-- ADD WORKOUT -->
+    <div class="card">
+      <h2>🏋️ Workout Log</h2>
+      <input type="text" id="workoutName" placeholder="Exercise Name">
+      <input type="number" id="workoutDuration" placeholder="Duration (min)">
+      <input type="number" id="workoutCalories" placeholder="Calories Burned">
+      <input type="date" id="workoutDate">
+      <button onclick="addWorkout()">Add Workout</button>
+      <ul id="workoutList"></ul>
+    </div>
+
+    <!-- PROGRESS TRACKING -->
+    <div class="card">
+      <h2>📈 Progress Tracking</h2>
+      <input type="number" id="weight" placeholder="Weight (kg)">
+      <input type="number" id="height" placeholder="Height (cm)">
+      <button onclick="updateProgress()">Update Progress</button>
+      <p><strong>BMI:</strong> <span id="bmi">0</span></p>
+      <canvas id="progressChart" width="300" height="200"></canvas>
+    </div>
+
+    <!-- GOALS & REMINDERS -->
+    <div class="card">
+      <h2>🎯 Goals & Tips</h2>
+      <div class="goals">
+        <input type="number" id="goalCalories" placeholder="Set Daily Calorie Goal">
+        <input type="number" id="goalWeight" placeholder="Set Target Weight (kg)">
+        <button onclick="setGoals()">Save Goals</button>
+        <p><strong>Daily Calorie Goal:</strong> <span id="calorieGoal">0</span></p>
+        <p><strong>Weight Goal:</strong> <span id="weightGoal">0</span></p>
+      </div>
+      <div class="tips">
+        <h4>💡 Tips</h4>
+        <ul>
+          <li>Drink plenty of water</li>
+          <li>Include protein in every meal</li>
+          <li>Exercise at least 30 minutes daily</li>
+          <li>Track your progress daily</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD SUMMARY -->
+  <div class="summary">
+    <h2>📊 Dashboard</h2>
+    <p><strong>Total Calories Consumed:</strong> <span id="totalConsumed">0</span> kcal</p>
+    <p><strong>Total Calories Burned:</strong> <span id="totalBurned">0</span> kcal</p>
+    <canvas id="calorieChart" width="400" height="200"></canvas>
+  </div>
+
+  <script>
+    let meals = [];
+    let workouts = [];
+    let weights = [];
+
+    // LOGIN / SIGNUP (just dummy)
+    function login(){ alert("Login form can be added here."); }
+    function signup(){ alert("Signup form can be added here."); }
+
+    function addMeal() {
+      const name = document.getElementById('mealName').value;
+      const calories = parseInt(document.getElementById('mealCalories').value);
+      const type = document.getElementById('mealType').value;
+      const date = document.getElementById('mealDate').value;
+
+      if (!name || !calories || !type || !date) {
+        alert("Please fill all fields");
+        return;
+      }
+
+      meals.push({ name, calories, type, date });
+      updateMeals();
+      updateSummary();
+
+      document.getElementById('mealName').value = '';
+      document.getElementById('mealCalories').value = '';
+      document.getElementById('mealType').value = '';
+      document.getElementById('mealDate').value = '';
+    }
+
+    function addWorkout() {
+      const name = document.getElementById('workoutName').value;
+      const duration = parseInt(document.getElementById('workoutDuration').value);
+      const calories = parseInt(document.getElementById('workoutCalories').value);
+      const date = document.getElementById('workoutDate').value;
+
+      if (!name || !duration || !calories || !date) {
+        alert("Please fill all fields");
+        return;
+      }
+
+      workouts.push({ name, duration, calories, date });
+      updateWorkouts();
+      updateSummary();
+
+      document.getElementById('workoutName').value = '';
+      document.getElementById('workoutDuration').value = '';
+      document.getElementById('workoutCalories').value = '';
+      document.getElementById('workoutDate').value = '';
+    }
+
+    function updateMeals() {
+      const list = document.getElementById('mealList');
+      list.innerHTML = '';
+      meals.forEach(m => {
+        const item = document.createElement('li');
+        item.textContent = `${m.date} [${m.type}]: ${m.name} - ${m.calories} kcal`;
+        list.appendChild(item);
+      });
+    }
+
+    function updateWorkouts() {
+      const list = document.getElementById('workoutList');
+      list.innerHTML = '';
+      workouts.forEach(w => {
+        const item = document.createElement('li');
+        item.textContent = `${w.date}: ${w.name} (${w.duration} min) - ${w.calories} kcal`;
+        list.appendChild(item);
+      });
+    }
+
+    function updateSummary() {
+      const totalConsumed = meals.reduce((sum, m) => sum + m.calories, 0);
+      const totalBurned = workouts.reduce((sum, w) => sum + w.calories, 0);
+
+      document.getElementById('totalConsumed').textContent = totalConsumed;
+      document.getElementById('totalBurned').textContent = totalBurned;
+
+      renderCalorieChart();
+    }
+
+    // PROGRESS & BMI
+    function updateProgress() {
+      const weight = parseFloat(document.getElementById('weight').value);
+      const height = parseFloat(document.getElementById('height').value);
+
+      if (!weight || !height) return alert("Enter weight & height");
+
+      const bmi = (weight / ((height/100) ** 2)).toFixed(1);
+      document.getElementById('bmi').textContent = bmi;
+
+      weights.push({ date: new Date().toLocaleDateString(), weight });
+      renderProgressChart();
+    }
+
+    // GOALS
+    function setGoals() {
+      const calorieGoal = parseInt(document.getElementById('goalCalories').value);
+      const weightGoal = parseInt(document.getElementById('goalWeight').value);
+
+      if(calorieGoal) document.getElementById('calorieGoal').textContent = calorieGoal;
+      if(weightGoal) document.getElementById('weightGoal').textContent = weightGoal;
+    }
+
+    // CHARTS
+    let calorieChart, progressChart;
+
+    function renderCalorieChart() {
+      const ctx = document.getElementById('calorieChart').getContext('2d');
+      const dates = [...new Set([...meals, ...workouts].map(x => x.date))].sort();
+      const consumedData = dates.map(d => meals.filter(m => m.date===d).reduce((sum,m)=>sum+m.calories,0));
+      const burnedData = dates.map(d => workouts.filter(w => w.date===d).reduce((sum,w)=>sum+w.calories,0));
+
+      if(calorieChart) calorieChart.destroy();
+
+      calorieChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: dates,
+          datasets: [
+            { label: 'Calories Consumed', data: consumedData, backgroundColor: '#4facfe' },
+            { label: 'Calories Burned', data: burnedData, backgroundColor: '#00f2fe' }
+          ]
+        },
+        options: { responsive:true }
+      });
+    }
+
+    function renderProgressChart() {
+      const ctx = document.getElementById('progressChart').getContext('2d');
+      const labels = weights.map(w => w.date);
+      const data = weights.map(w => w.weight);
+
+      if(progressChart) progressChart.destroy();
+
+      progressChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets: [{ label: 'Weight (kg)', data, borderColor: '#ff6a00', fill:false, tension:0.3 }] },
+        options: { responsive:true }
+      });
+    }
+  </script>
+
+</body>
+</html>
